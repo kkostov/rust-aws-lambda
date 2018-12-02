@@ -10,6 +10,11 @@ fn validate_serial_alphanumeric(serial_number: &str) -> bool {
     serial_number.chars().all(char::is_alphanumeric)
 }
 
+fn validate_serial_unique(serial_number: &str) -> bool {
+    let existing_serial_numbers = vec!["serial1", "serial2", "serial3"];
+    !existing_serial_numbers.contains(&serial_number)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -54,5 +59,19 @@ mod tests {
         let test_serial = "abcd!1234";
         let validation_result = validate_serial_alphanumeric(test_serial);
         assert_eq!(false, validation_result);
+    }
+
+    #[test]
+    fn validates_existing_serial1_as_invalid() {
+        let test_serial = "serial1";
+        let validation_result = validate_serial_unique(test_serial);
+        assert_eq!(false, validation_result);
+    }
+
+    #[test]
+    fn validates_new_serial4_as_valid() {
+        let test_serial = "serial4";
+        let validation_result = validate_serial_unique(test_serial);
+        assert_eq!(true, validation_result);
     }
 }
