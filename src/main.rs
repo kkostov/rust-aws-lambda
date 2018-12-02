@@ -55,6 +55,13 @@ mod tests {
     }
 
     #[test]
+    fn validates_string_with_unicode_characters_as_valid() {
+        let test_serial = "абвгдежзийюя1234";
+        let validation_result = validate_serial_alphanumeric(test_serial);
+        assert_eq!(true, validation_result);
+    }
+
+    #[test]
     fn validates_string_with_special_characters_as_invalid() {
         let test_serial = "abcd!1234";
         let validation_result = validate_serial_alphanumeric(test_serial);
