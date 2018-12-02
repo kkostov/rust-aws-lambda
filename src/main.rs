@@ -1,5 +1,19 @@
-fn main() {
-    println!("Hello, world!");
+#[macro_use]
+extern crate lambda_runtime as lambda;
+#[macro_use]
+extern crate serde_derive;
+
+use std::error::Error;
+use serde_derive::{Serialize, Deserialize};
+use lambda::{lambda, Context, error::HandlerError};
+
+fn main() -> Result<(), Box<dyn Error>> {
+    lambda!(validation_handler);
+    Ok(())
+}
+
+fn validation_handler(event: ValidationEvent, ctx: Context) -> Result<ValidationResult, HandlerError> {
+    Ok(validate_serial(event.serial_number.as_str()))
 }
 
 enum ValidationError {
@@ -16,9 +30,17 @@ impl ValidationError {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 struct ValidationResult {
+    #[serde(rename = "isValid")]
     is_valid: bool,
     errors: Vec<String>
+}
+
+#[derive(Serialize, Deserialize)]
+struct ValidationEvent {
+    #[serde(rename = "serialNumber")]
+    serial_number: String
 }
 
 fn validate_serial(serial_number: &str) -> ValidationResult {
