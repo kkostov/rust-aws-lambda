@@ -1,6 +1,4 @@
-#[macro_use]
 extern crate lambda_runtime as lambda;
-#[macro_use]
 extern crate serde_derive;
 
 use std::error::Error;
@@ -12,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn validation_handler(event: ValidationEvent, ctx: Context) -> Result<ValidationResult, HandlerError> {
+fn validation_handler(event: ValidationEvent, _ctx: Context) -> Result<ValidationResult, HandlerError> {
     Ok(validate_serial(event.serial_number.as_str()))
 }
 
