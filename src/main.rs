@@ -2,6 +2,46 @@ fn main() {
     println!("Hello, world!");
 }
 
+enum ValidationError {
+    InvalidFormat,
+    AlreadyExists
+}
+
+impl ValidationError {
+    fn value(&self) -> String {
+        match *self {
+            ValidationError::InvalidFormat => String::from("invalid_format"),
+            ValidationError::AlreadyExists => String::from("already_exists"),
+        }
+    }
+}
+
+struct ValidationResult {
+    is_valid: bool,
+    errors: Vec<String>
+}
+
+fn validate_serial(serial_number: &str) -> ValidationResult {
+    let mut result = ValidationResult { is_valid: true, errors: Vec::new() };
+
+    if !validate_serial_length(serial_number) {
+        result.is_valid = false;
+        result.errors.push(ValidationError::InvalidFormat.value());
+    }
+
+    if !validate_serial_alphanumeric(serial_number) {
+        result.is_valid = false;
+        result.errors.push(ValidationError::InvalidFormat.value());
+    }
+
+    if !validate_serial_unique(serial_number) {
+        result.is_valid = false;
+        result.errors.push(ValidationError::AlreadyExists.value());
+    }
+
+    return result;
+}
+
 fn validate_serial_length(serial_number: &str) -> bool {
     serial_number.chars().count() >= 6
 }
@@ -18,6 +58,38 @@ fn validate_serial_unique(serial_number: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn validation_result_for_invalid_length() {
+        let test_serial = "i234";
+        let validation_result = validate_serial(test_serial);
+        assert_eq!(false, validation_result.is_valid);
+        assert_eq!(true, validation_result.errors.contains(&String::from("invalid_format")))
+    }
+
+    #[test]
+    fn validation_result_for_invalid_characters() {
+        let test_serial = "i234@";
+        let validation_result = validate_serial(test_serial);
+        assert_eq!(false, validation_result.is_valid);
+        assert_eq!(true, validation_result.errors.contains(&String::from("invalid_format")))
+    }
+
+    #[test]
+    fn validation_result_for_already_existing_serial() {
+        let test_serial = "serial1";
+        let validation_result = validate_serial(test_serial);
+        assert_eq!(false, validation_result.is_valid);
+        assert_eq!(true, validation_result.errors.contains(&String::from("already_exists")))
+    }
+
+    #[test]
+    fn validation_result_for_valid_serial() {
+        let test_serial = "a12345bbc";
+        let validation_result = validate_serial(test_serial);
+        assert_eq!(true, validation_result.is_valid);
+        assert_eq!(true, validation_result.errors.is_empty())
+    }
 
     #[test]
     fn validates_length_of_four_characters_as_invalid() {
